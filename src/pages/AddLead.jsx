@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import Dropdown from '../components/common/Dropdown';
 
 const AddLead = () => {
   const navigate = useNavigate();
@@ -112,19 +113,13 @@ const AddLead = () => {
           </div>
 
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select
-              id="status"
-              name="status"
+            <Dropdown
+              label="Status"
+              options={['New', 'Opened', 'Interested', 'Rejected']}
               value={formData.status}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
-            >
-              <option value="New">New</option>
-              <option value="Opened">Opened</option>
-              <option value="Interested">Interested</option>
-              <option value="Rejected">Rejected</option>
-            </select>
+              onChange={(val) => handleChange({ target: { name: 'status', value: val } })}
+              placeholder="Select status"
+            />
           </div>
 
           <div className="pt-4 flex items-center justify-end gap-3">

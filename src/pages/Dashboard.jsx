@@ -1,7 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { leadsData } from '../data/mockData';
 import { ArrowUpRight, MoreHorizontal, ArrowRight, ChevronDown } from 'lucide-react';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
+
+    // Calculate dynamic stats
+    const totalLeads = leadsData.length;
+    const activeDeals = leadsData.filter(l => ['New', 'Opened', 'Interested'].includes(l.status)).length;
+    const inProgress = leadsData.filter(l => ['Opened', 'Interested'].includes(l.status)).length;
+    const newCustomers = leadsData.filter(l => l.status === 'New').length;
+
     const [tasks, setTasks] = React.useState([
         { id: 1, title: "Schedule product demo call", tag: "ABC Constructions", tagColor: "bg-blue-50 text-blue-700", completed: false },
         { id: 2, title: "Send proposal document", tag: "Interiors", tagColor: "bg-purple-50 text-purple-700", completed: false },
@@ -32,15 +42,32 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <StatCard label="Total Leads Collected" value="12,540" />
-        <StatCard label="Active Deals" value="1,250" />
-        <StatCard label="Deals in Progress" value="450" />
-        <StatCard label="New Customers This Month" value="3,650" />
+        <StatCard 
+            label="Total Leads Collected" 
+            value={totalLeads} 
+            onClick={() => navigate('/leads', { state: { filterStatus: 'All' } })}
+        />
+        <StatCard 
+            label="Active Deals" 
+            value={activeDeals} 
+            onClick={() => navigate('/leads', { state: { filterStatus: 'Active' } })}
+        />
+        <StatCard 
+            label="Deals in Progress" 
+            value={inProgress} 
+            onClick={() => navigate('/leads', { state: { filterStatus: 'Progress' } })}
+        />
+        <StatCard 
+            label="New Customers This Month" 
+            value={newCustomers} 
+            onClick={() => navigate('/leads', { state: { filterStatus: 'New' } })}
+        />
         <StatCard 
             label="Customer Satisfaction Rate" 
             value="92%" 
             subValue="+2.45%" 
             subValueColor="text-green-500"
+            onClick={() => navigate('/leads', { state: { filterStatus: 'All' } })}
         />
       </div>
 
@@ -230,8 +257,11 @@ const Dashboard = () => {
 
 // --- Sub Components ---
 
-const StatCard = ({ label, value, subValue, subValueColor }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+const StatCard = ({ label, value, subValue, subValueColor, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+  >
     <div className="text-gray-500 text-xs mb-2 font-medium">{label}</div>
     <div className="flex items-end gap-2">
       <div className="text-2xl font-bold text-gray-800">{value}</div>

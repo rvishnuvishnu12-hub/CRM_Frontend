@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Share2, 
   List, 
@@ -8,43 +8,67 @@ import {
   Plus,
   Linkedin,
   Link as LinkIcon,
-  ChevronsDown
+  ChevronsDown,
+  User, // Fallback for Name
+  Building2 // Fallback for Companies
 } from 'lucide-react';
 
-// Mock Data moved outside component to avoid ReferenceError
-const leadsData = Array(10).fill({
-    name: "Johnson",
-    company: "Techno",
-    jobTitle: "Sales Rep",
-    email: "johnson@gmail.com",
-    createdOn: "15/12/2025 - Mon",
-    status: "Opened"
-}).map((item, idx) => {
-    const names = ['Johnson', 'Smith', 'Williams', 'Brown', 'Jones'];
-    const companies = ['Techno', 'SoftSys', 'DataCorp', 'NetWorks', 'CloudNine'];
-    const nameBase = names[idx % 5];
-    
-    return {
-        ...item,
-        name: `${nameBase} ${idx + 1}`,
-        company: companies[idx % 5],
-        email: `${nameBase.toLowerCase()}.${idx + 1}@example.com`,
-        status: ['Opened', 'New', 'Interested', 'Rejected'][idx % 4]
-    };
-});
+import createdOnIcon from '../assets/leads/created on.svg';
+import emailIcon from '../assets/leads/email.svg';
+import jobTitleIcon from '../assets/leads/job title.svg';
+import leadSourceIcon from '../assets/leads/lead source.svg';
+import statusIcon from '../assets/leads/status.svg';
+import urlIcon from '../assets/leads/url.svg';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { leadsData } from '../data/mockData';
+
 
 const Leads = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [leads, setLeads] = useState(leadsData);
+  const [selectedLeads, setSelectedLeads] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // Toggle selection for all visible leads
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const allIds = filteredLeads.map(lead => lead.id);
+      setSelectedLeads(allIds);
+    } else {
+      setSelectedLeads([]);
+    }
+  };
+
+  // Toggle selection for a single lead
+  const handleSelectRow = (id) => {
+    if (selectedLeads.includes(id)) {
+      setSelectedLeads(selectedLeads.filter(leadId => leadId !== id));
+    } else {
+      setSelectedLeads([...selectedLeads, id]);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedLeads.length} selected leads?`)) {
+        setLeads(leads.filter(lead => !selectedLeads.includes(lead.id)));
+        setSelectedLeads([]); // Clear selection
+    }
+  };
+
+  // Set filter from navigation state if present
+  useEffect(() => {
+    if (location.state && location.state.filterStatus) {
+      setFilterStatus(location.state.filterStatus);
+    }
+  }, [location.state]);
 
   // Filter Logic
   const filteredLeads = useMemo(() => {
-    return leadsData.filter(lead => {
+    return leads.filter(lead => {
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch = 
         lead.name.toLowerCase().includes(searchLower) || 
@@ -53,8 +77,17 @@ const Leads = () => {
         lead.jobTitle.toLowerCase().includes(searchLower) ||
         lead.status.toLowerCase().includes(searchLower);
       
-      const matchesFilter = filterStatus === 'All' || lead.status === filterStatus;
-
+      let matchesFilter = false;
+      if (filterStatus === 'All') {
+        matchesFilter = true;
+      } else if (filterStatus === 'Active') {
+        matchesFilter = ['New', 'Opened', 'Interested'].includes(lead.status);
+      } else if (filterStatus === 'Progress') {
+        matchesFilter = ['Opened', 'Interested'].includes(lead.status);
+      } else {
+        matchesFilter = lead.status === filterStatus;
+      }
+      
       return matchesSearch && matchesFilter;
     });
   }, [searchQuery, filterStatus]);
@@ -150,24 +183,40 @@ const Leads = () => {
       <div className="flex-1 overflow-auto bg-white border border-gray-200 rounded-lg shadow-sm">
         <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50 sticky top-0 z-10">
-                <tr>
+                <tr className="divide-x divide-gray-200">
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
                         <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Companies</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Urls</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created on</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead Source</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        <User size={16} />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        <Building2 size={16} />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        <img src={jobTitleIcon} alt="Job Title" className="w-4 h-4" />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                         <img src={emailIcon} alt="Email" className="w-4 h-4" />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                         <img src={urlIcon} alt="Urls" className="w-4 h-4" />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                         <img src={createdOnIcon} alt="Created on" className="w-4 h-4" />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                         <img src={leadSourceIcon} alt="Lead Source" className="w-4 h-4" />
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                         <img src={statusIcon} alt="Status" className="w-4 h-4" />
+                    </th>
                 </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
                 {filteredLeads.length > 0 ? (
                     filteredLeads.map((lead, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <tr key={index} className="hover:bg-gray-50 transition-colors border-b border-gray-200 divide-x divide-gray-200">
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                             </td>

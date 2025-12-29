@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Dropdown from '../components/common/Dropdown';
 
 
 const SignupDetails = () => {
@@ -13,34 +14,16 @@ const SignupDetails = () => {
         newsletter: false
     });
 
-    const [openDropdown, setOpenDropdown] = useState(null); // 'industry' or 'timeZone' or null
-
-    const toggleDropdown = (name) => {
-        setOpenDropdown(openDropdown === name ? null : name);
-    };
-
-    const handleSelect = (name, value) => {
-        setFormData({ ...formData, [name]: value });
-        setOpenDropdown(null);
-    };
-
-    // Close dropdowns when clicking outside
-    React.useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (!e.target.closest('.custom-dropdown-container')) {
-                setOpenDropdown(null);
-            }
-        };
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
-
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
             ...formData,
             [name]: type === 'checkbox' ? checked : value
         });
+    };
+
+    const handleDropdownChange = (name, value) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     // We can add state handlers here later if needed
@@ -93,68 +76,22 @@ const SignupDetails = () => {
                         </div>
 
                         {/* Industry */}
-                        <div className="space-y-2 custom-dropdown-container">
-                            <label className="block text-[15px] font-normal text-gray-500">What Type Of Products or Services Do You Plan?</label>
-                            <div className="relative">
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); toggleDropdown('industry'); }}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-left flex items-center justify-between text-gray-900 focus:outline-none focus:border-blue-500 transition-all duration-200"
-                                >
-                                    <span className={formData.industry ? 'text-gray-900' : 'text-gray-900'}>
-                                        {formData.industry || 'Select an industry'}
-                                    </span>
-                                    <svg className={`w-4 h-4 text-gray-700 transition-transform ${openDropdown === 'industry' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-                                
-                                {openDropdown === 'industry' && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-20 animate-fade-in-up overflow-hidden">
-                                        {['Technology', 'Finance', 'Retail', 'Healthcare', 'Other'].map((option) => (
-                                            <button
-                                                key={option}
-                                                type="button"
-                                                onClick={() => handleSelect('industry', option)}
-                                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-gray-900 transition-colors"
-                                            >
-                                                {option}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <Dropdown
+                            label="What Type Of Products or Services Do You Plan?"
+                            options={['Technology', 'Finance', 'Retail', 'Healthcare', 'Other']}
+                            value={formData.industry}
+                            onChange={(val) => handleDropdownChange('industry', val)}
+                            placeholder="Select an industry"
+                        />
 
                         {/* Time Zone */}
-                        <div className="space-y-2 custom-dropdown-container">
-                            <label className="block text-[15px] font-normal text-gray-500">Time Zone & Currency</label>
-                            <div className="relative">
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); toggleDropdown('timeZone'); }}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-left flex items-center justify-between text-gray-900 focus:outline-none focus:border-blue-500 transition-all duration-200"
-                                >
-                                    <span className={formData.timeZone ? 'text-gray-900' : 'text-gray-900'}>
-                                        {formData.timeZone || 'Select your time zone'}
-                                    </span>
-                                    <svg className={`w-4 h-4 text-gray-700 transition-transform ${openDropdown === 'timeZone' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-
-                                {openDropdown === 'timeZone' && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-20 animate-fade-in-up overflow-hidden">
-                                        {['UTC', 'EST', 'PST', 'IST'].map((option) => (
-                                            <button
-                                                key={option}
-                                                type="button"
-                                                onClick={() => handleSelect('timeZone', option)}
-                                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-gray-900 transition-colors"
-                                            >
-                                                {option}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <Dropdown
+                            label="Time Zone & Currency"
+                            options={['UTC', 'EST', 'PST', 'IST']}
+                            value={formData.timeZone}
+                            onChange={(val) => handleDropdownChange('timeZone', val)}
+                            placeholder="Select your time zone"
+                        />
 
                         {/* Company Email */}
                         <div className="space-y-2">

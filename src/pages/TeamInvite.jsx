@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Dropdown from '../components/common/Dropdown';
 
 const TeamInvite = () => {
     const navigate = useNavigate();
@@ -81,25 +82,13 @@ const TeamInvite = () => {
                                 </div>
 
                                 {/* Role */}
-                                <div className="space-y-2">
-                                    <label className="block text-[15px] font-normal text-gray-500">Role</label>
-                                    <div className="relative">
-                                        <select 
-                                            required
-                                            value={invite.role}
-                                            onChange={(e) => handleRoleChange(index, e.target.value)}
-                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer"
-                                        >
-                                            <option value="" disabled>Assign a role</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="member">Member</option>
-                                            <option value="viewer">Viewer</option>
-                                        </select>
-                                        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                            <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </div>
-                                    </div>
-                                </div>
+                                <Dropdown
+                                    label="Role"
+                                    options={['Admin', 'Member', 'Viewer']}
+                                    value={invite.role}
+                                    onChange={(val) => handleRoleChange(index, val)}
+                                    placeholder="Select Role"
+                                />
                             </div>
                         ))}
 
