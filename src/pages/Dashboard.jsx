@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { leadsData } from "../data/mockData";
+import { dashboardAPI, leadsAPI, tasksAPI } from "../utils/api";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -11,17 +11,14 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-
-  // Stats
-  const totalLeads = leadsData.length;
-  const activeDeals = leadsData.filter((l) =>
-    ["New", "Opened", "Interested"].includes(l.status)
-  ).length;
-  const inProgress = leadsData.filter((l) =>
-    ["Opened", "Interested"].includes(l.status)
-  ).length;
-  const newCustomers = leadsData.filter((l) => l.status === "New").length;
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    totalLeads: 0,
+    activeDeals: 0,
+    inProgress: 0,
+    newCustomers: 0,
+  });
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -45,6 +42,50 @@ const Dashboard = () => {
       completed: false,
     },
   ]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [leadsData, tasksData] = await Promise.all([
+          leadsAPI.getLeads(),
+          tasksAPI.getTasks(),
+        ]);
+
+        const leadsArray = Array.isArray(leadsData) ? leadsData : leadsData.data || [];
+        const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData.data || [];
+
+        const totalLeads = leadsArray.length;
+        const activeDeals = leadsArray.filter((l) =>
+          ["New", "Opened", "Interested"].includes(l.status)
+        ).length;
+        const inProgress = leadsArray.filter((l) =>
+          ["Opened", "Interested"].includes(l.status)
+        ).length;
+        const newCustomers = leadsArray.filter((l) => l.status === "New").length;
+
+        setStats({
+          totalLeads,
+          activeDeals,
+          inProgress,
+          newCustomers,
+        });
+
+        if (tasksArray.length > 0) {
+          setTasks(tasksArray);
+        }
+
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const toggleTask = (id) => {
     setTasks(
@@ -70,32 +111,45 @@ const Dashboard = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-gray-500">Loading dashboard...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+          {error}
+        </div>
+      )}
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <StatCard
           label="Total Leads Collected"
-          value={totalLeads}
+          value={stats.totalLeads}
           onClick={() => navigate("/leads", { state: { filterStatus: "All" } })}
         />
         <StatCard
           label="Active Deals"
-          value={activeDeals}
+          value={stats.activeDeals}
           onClick={() =>
             navigate("/leads", { state: { filterStatus: "Active" } })
           }
         />
         <StatCard
           label="Deals in Progress"
-          value={inProgress}
+          value={stats.inProgress}
           onClick={() =>
             navigate("/leads", { state: { filterStatus: "Progress" } })
           }
         />
         <StatCard
           label="New Customers This Month"
-          value={newCustomers}
+          value={stats.newCustomers}
           onClick={() => navigate("/leads", { state: { filterStatus: "New" } })}
         />
         <StatCard

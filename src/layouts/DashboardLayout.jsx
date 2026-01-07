@@ -1,24 +1,33 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Filter, 
-  ClipboardList, 
-  Calendar, 
-  Bell, 
-  Settings, 
-  Search, 
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/useAuth';
+import {
+  LayoutDashboard,
+  Users,
+  Filter,
+  ClipboardList,
+  Calendar,
+  Bell,
+  Settings,
+  Search,
   Info,
   ChevronsLeft,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans text-gray-800">
@@ -69,11 +78,20 @@ const DashboardLayout = () => {
           <NavItem to="/notifications" icon={<Bell size={20} />} label="Notification" onClick={closeSidebar} />
           <NavItem to="/settings" icon={<Settings size={20} />} label="Settings" onClick={closeSidebar} />
           
-          <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-3 px-3 pb-2 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-            <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center overflow-hidden">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
+          <div className="mt-6 pt-6 border-t border-gray-100 flex items-center justify-between px-3 pb-2">
+            <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors p-1 flex-1">
+              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center overflow-hidden">
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
+              </div>
+              <span className="font-medium text-sm text-gray-700">Manovates</span>
             </div>
-            <span className="font-medium text-sm text-gray-700">Manovates</span>
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </div>
       </aside>

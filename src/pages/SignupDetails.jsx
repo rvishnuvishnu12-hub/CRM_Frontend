@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Dropdown from '../components/common/Dropdown';
+import manovateLogo from '../assets/manovate.svg';
 
 
 const SignupDetails = () => {
@@ -39,7 +40,7 @@ const SignupDetails = () => {
             {/* Logo - Top Left */}
             <div className="absolute top-8 left-8 sm:top-12 sm:left-12">
                 <img 
-                    src="/src/assets/manovate.svg" 
+                    src={manovateLogo} 
                     alt="Manovate Technologies" 
                     className="h-12 w-auto object-contain"
                 />

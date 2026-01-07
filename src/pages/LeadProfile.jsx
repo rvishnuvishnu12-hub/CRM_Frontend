@@ -13,12 +13,36 @@ import {
   User,
   X,
 } from "lucide-react";
-import { getLeads, updateLead } from "../utils/leadsStorage";
+import { leadsAPI } from "../utils/api";
 
 const LeadProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [lead, setLead] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [prevId, setPrevId] = useState(id);
+
+  useEffect(() => {
+    const fetchLead = async () => {
+      try {
+        setLoading(true);
+        const data = await leadsAPI.getLead(id);
+        setLead(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching lead:', err);
+        setError(err.message);
+        setLead(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLead();
+    setPrevId(id);
+  }, [id]);
+
   const [activeTab, setActiveTab] = useState("leadInfo");
   const [composerTab, setComposerTab] = useState("activity");
 
@@ -27,19 +51,19 @@ const LeadProfile = () => {
   const [modalType, setModalType] = useState("");
   const [formData, setFormData] = useState({});
 
-  useEffect(() => {
-    const leads = getLeads();
-    const foundLead = leads.find((l) => l.id.toString() === id);
-    if (foundLead) setLead(foundLead);
-  }, [id]);
+  if (loading) return <div className="p-8 text-gray-500">Loading lead...</div>;
+  if (!lead) return <div className="p-8 text-red-500">{error || "Lead not found"}</div>;
 
-  if (!lead) return <div className="p-8">Loading...</div>;
-
-  const handleStatusChange = (newStatus) => {
-    const updated = { ...lead, status: newStatus };
-    setLead(updated);
-    updateLead(updated);
-    setStatusDropdownOpen(false);
+  const handleStatusChange = async (newStatus) => {
+    try {
+      const updated = { ...lead, status: newStatus };
+      await leadsAPI.updateLead(id, { status: newStatus });
+      setLead(updated);
+      setStatusDropdownOpen(false);
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setError(err.message);
+    }
   };
 
   const handleModalSubmit = (e) => {
