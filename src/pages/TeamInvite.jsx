@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Dropdown from '../components/common/Dropdown';
 
 const TeamInvite = () => {
     const navigate = useNavigate();
     const [invites, setInvites] = useState([{ email: '', role: '' }]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAddInvite = () => {
         setInvites([...invites, { email: '', role: '' }]);
@@ -21,12 +23,25 @@ const TeamInvite = () => {
         setInvites(newInvites);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission logic here (e.g., API call)
+        
+        // Basic Validation
+        const isValid = invites.every(invite => invite.email.trim() !== '' && invite.role !== '');
+        if (!isValid) {
+            alert("Please fill in all email and role fields.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        // Simulate API Call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         console.log("Invites submitted:", invites);
-        // Navigate to dashboard or next step
-        navigate('/'); 
+        alert("Invitations sent successfully!");
+        
+        setIsSubmitting(false);
+        navigate('/dashboard'); 
     };
 
     return (
@@ -58,6 +73,7 @@ const TeamInvite = () => {
                                     <label className="block text-[15px] font-normal text-gray-500">Email address</label>
                                     <input
                                         type="email"
+                                        required
                                         placeholder="e.g name@domain.com"
                                         value={invite.email}
                                         onChange={(e) => handleEmailChange(index, e.target.value)}
@@ -66,24 +82,13 @@ const TeamInvite = () => {
                                 </div>
 
                                 {/* Role */}
-                                <div className="space-y-2">
-                                    <label className="block text-[15px] font-normal text-gray-500">Role</label>
-                                    <div className="relative">
-                                        <select 
-                                            value={invite.role}
-                                            onChange={(e) => handleRoleChange(index, e.target.value)}
-                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer"
-                                        >
-                                            <option value="" disabled>Assign a role</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="member">Member</option>
-                                            <option value="viewer">Viewer</option>
-                                        </select>
-                                        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                            <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </div>
-                                    </div>
-                                </div>
+                                <Dropdown
+                                    label="Role"
+                                    options={['Admin', 'Member', 'Viewer']}
+                                    value={invite.role}
+                                    onChange={(val) => handleRoleChange(index, val)}
+                                    placeholder="Select Role"
+                                />
                             </div>
                         ))}
 
@@ -100,12 +105,13 @@ const TeamInvite = () => {
                         <div className="pt-4 space-y-5">
                             <button
                                 type="submit"
-                                className="w-full py-3 bg-[#344873] hover:bg-[#253860] text-white font-medium rounded text-[15px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#344873]"
+                                disabled={isSubmitting}
+                                className={`w-full py-3 bg-[#344873] hover:bg-[#253860] text-white font-medium rounded text-[15px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#344873] ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
-                                Send Invitations
+                                {isSubmitting ? 'Sending...' : 'Send Invitations'}
                             </button>
                             <div className="text-center">
-                                <Link to="/" className="text-gray-900 text-[15px] font-medium hover:underline">
+                                <Link to="/dashboard" className="text-gray-900 text-[15px] font-medium hover:underline">
                                     Skip for now
                                 </Link>
                             </div>

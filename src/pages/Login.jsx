@@ -10,7 +10,8 @@ const Login = () => {
     e.preventDefault();
     console.log("Login submitted");
     // TODO: Implement actual login logic here
-    alert("Login button clicked! (Backend integration pending)");
+    // alert("Login button clicked! (Backend integration pending)");
+    navigate('/dashboard');
   };
 
   return (

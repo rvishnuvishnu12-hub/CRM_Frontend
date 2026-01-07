@@ -1,14 +1,36 @@
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Dropdown from '../components/common/Dropdown';
 
 
 const SignupDetails = () => {
     const navigate = useNavigate();
 
+    const [formData, setFormData] = useState({
+        companyName: '',
+        industry: '',
+        timeZone: '',
+        email: '',
+        newsletter: false
+    });
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData({
+            ...formData,
+            [name]: type === 'checkbox' ? checked : value
+        });
+    };
+
+    const handleDropdownChange = (name, value) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
     // We can add state handlers here later if needed
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission
-        console.log("Form submitted");
+        console.log("Form submitted", formData);
         navigate('/team-invite');
     };
 
@@ -40,6 +62,9 @@ const SignupDetails = () => {
                             <div className="relative">
                                 <input
                                     type="text"
+                                    name="companyName"
+                                    value={formData.companyName}
+                                    onChange={handleChange}
                                     placeholder="Enter your company name"
                                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-900 focus:outline-none focus:border-blue-500 transition-all duration-200"
                                 />
@@ -51,45 +76,31 @@ const SignupDetails = () => {
                         </div>
 
                         {/* Industry */}
-                        <div className="space-y-2">
-                            <label className="block text-[15px] font-normal text-gray-500">What Type Of Products or Services Do You Plan?</label>
-                            <div className="relative">
-                                <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-900 focus:outline-none focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer">
-                                    <option value="" disabled selected>Select an industry</option>
-                                    <option value="tech">Technology</option>
-                                    <option value="finance">Finance</option>
-                                    <option value="retail">Retail</option>
-                                    <option value="healthcare">Healthcare</option>
-                                    <option value="other">Other</option>
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-                        </div>
+                        <Dropdown
+                            label="What Type Of Products or Services Do You Plan?"
+                            options={['Technology', 'Finance', 'Retail', 'Healthcare', 'Other']}
+                            value={formData.industry}
+                            onChange={(val) => handleDropdownChange('industry', val)}
+                            placeholder="Select an industry"
+                        />
 
                         {/* Time Zone */}
-                        <div className="space-y-2">
-                            <label className="block text-[15px] font-normal text-gray-500">Time Zone & Currency</label>
-                            <div className="relative">
-                                <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-900 focus:outline-none focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer">
-                                    <option value="" disabled selected>Select your time zone</option>
-                                    <option value="UTC">UTC</option>
-                                    <option value="EST">EST</option>
-                                    <option value="PST">PST</option>
-                                    <option value="IST">IST</option>
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-                        </div>
+                        <Dropdown
+                            label="Time Zone & Currency"
+                            options={['UTC', 'EST', 'PST', 'IST']}
+                            value={formData.timeZone}
+                            onChange={(val) => handleDropdownChange('timeZone', val)}
+                            placeholder="Select your time zone"
+                        />
 
                         {/* Company Email */}
                         <div className="space-y-2">
                             <label className="block text-[15px] font-normal text-gray-500">Your Company Email Address</label>
                             <input
                                 type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
                                 placeholder="Enter your email id"
                                 className="w-full px-4 py-3 bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-900 focus:outline-none focus:border-blue-500 transition-all duration-200"
                             />
@@ -101,6 +112,9 @@ const SignupDetails = () => {
                                 <input
                                     type="checkbox"
                                     id="newsletter"
+                                    name="newsletter"
+                                    checked={formData.newsletter}
+                                    onChange={handleChange}
                                     className="w-4 h-4 border-gray-300 rounded text-blue-900 focus:ring-blue-900 cursor-pointer"
                                 />
                             </div>
