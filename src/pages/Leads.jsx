@@ -54,12 +54,18 @@ const Leads = () => {
         lead.status.toLowerCase().includes(searchLower);
 
       if (filterStatus === "All") return matchesSearch;
+      // Adjusted filters to match new columns if needed, but keeping logic generic for now
       if (filterStatus === "Active")
         return (
-          matchesSearch && ["New", "Opened", "Interested"].includes(lead.status)
+          matchesSearch &&
+          [
+            "New",
+            "Opened",
+            "New Lead",
+            "Interested",
+            "Interested Lead",
+          ].includes(lead.status)
         );
-      if (filterStatus === "Progress")
-        return matchesSearch && ["Opened", "Interested"].includes(lead.status);
 
       return matchesSearch && lead.status === filterStatus;
     });
@@ -84,6 +90,39 @@ const Leads = () => {
         console.error('Error deleting lead:', err);
         setError(err.message);
       }
+    }
+  };
+
+  const handleDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const leadId = Number(draggableId);
+    const newStatus = destination.droppableId;
+    const oldStatus = source.droppableId;
+
+    if (
+      ["Closed", "Rejected"].includes(oldStatus) &&
+      !["Closed", "Rejected"].includes(newStatus)
+    ) {
+      if (!window.confirm("Are you sure you want to reopen a closed lead?"))
+        return;
+    }
+
+    const leadToUpdate = leads.find((l) => l.id === leadId);
+    if (leadToUpdate) {
+      const updatedLead = { ...leadToUpdate, status: newStatus };
+
+      setLeads((prev) => prev.map((l) => (l.id === leadId ? updatedLead : l)));
+
+      updateLead(updatedLead);
     }
   };
 
@@ -234,7 +273,11 @@ const Leads = () => {
           getStatusColor={getStatusColor}
         />
       ) : (
-        <LeadsPipelineView leads={filteredLeads} onDelete={handleDelete} />
+        <LeadsPipelineView
+          leads={filteredLeads}
+          onDelete={handleDelete}
+          onDragEnd={handleDragEnd}
+        />
       )}
     </div>
   );

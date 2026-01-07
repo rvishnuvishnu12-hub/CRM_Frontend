@@ -60,7 +60,6 @@ const Login = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto animate-fade-in-up">
-      {/* Header */}
       <div className="mb-8 text-center">
         <h2 className="mb-2 text-2xl font-bold text-gray-900">Sign In to your account</h2>
         <p className="text-sm text-gray-500">Enter your details to access your account</p>
@@ -68,14 +67,17 @@ const Login = () => {
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Email Input */}
         <div className="space-y-1.5">
-          <label className="block pl-1 text-sm font-medium text-gray-500">Email</label>
+          <label className="block pl-1 text-sm font-medium text-gray-500">
+            Email
+          </label>
           <div className="relative">
             <input
               type="email"
               name="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               className="w-full px-4 py-3 pr-10 transition-all duration-200 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
@@ -87,9 +89,10 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Password Input */}
         <div className="space-y-1.5">
-          <label className="block pl-1 text-sm font-medium text-gray-500">Password</label>
+          <label className="block pl-1 text-sm font-medium text-gray-500">
+            Password
+          </label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -108,21 +111,22 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Options */}
         <div className="flex items-center justify-between pt-1 text-sm">
           <label className="flex items-center gap-2 text-gray-600 cursor-pointer select-none">
-            <input 
-                type="checkbox" 
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" 
+            <input
+              type="checkbox"
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
             />
             <span className="text-gray-500">Remember for 30 days</span>
           </label>
-          <Link to="/forgot-password" className="font-medium text-blue-500 hover:text-blue-600">
+          <Link
+            to="/forgot-password"
+            className="font-medium text-blue-500 hover:text-blue-600"
+          >
             Forgot Password?
           </Link>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
@@ -131,14 +135,12 @@ const Login = () => {
           {loading ? 'Signing in...' : 'Sign in'}
         </button>
 
-        {/* Divider */}
         <div className="flex items-center gap-4 py-2 relative">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-sm text-gray-400">or</span>
-            <div className="flex-1 h-px bg-gray-200"></div>
+          <div className="flex-1 h-px bg-gray-200"></div>
+          <span className="text-sm text-gray-400">or</span>
+          <div className="flex-1 h-px bg-gray-200"></div>
         </div>
 
-        {/* Social Login */}
         <div className="flex justify-center gap-4">
             {/* Google */}
             <button type="button" onClick={handleGoogleLogin} className="flex items-center justify-center w-12 h-12 transition-colors duration-200 border border-gray-200 rounded-xl hover:bg-gray-50">
@@ -163,8 +165,11 @@ const Login = () => {
       </form>
 
       <p className="mt-8 text-sm text-center text-gray-500">
-        Don't have an account?{' '}
-        <Link to="/signup" className="font-semibold text-blue-500 hover:text-blue-600 hover:underline">
+        Don't have an account?{" "}
+        <Link
+          to="/signup"
+          className="font-semibold text-blue-500 hover:text-blue-600 hover:underline"
+        >
           Sign up
         </Link>
       </p>

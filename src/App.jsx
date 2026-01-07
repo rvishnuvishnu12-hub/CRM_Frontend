@@ -18,6 +18,8 @@ import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import AddLead from "./pages/AddLead";
 import LeadProfile from "./pages/LeadProfile";
+import Deals from "./pages/Deals";
+import Notifications from "./pages/Notifications";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
